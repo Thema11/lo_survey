@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استبيان تجربة المستفيد النيابي – المحامون</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+  :root {
+    --teal-dark: #02807A;
+    --teal-mid: #309C99;
+    --teal-light: #E1F5EE;
+    --gold-dark: #AA926D;
+    --gold-light: #C5B298;
+    --cream-dark: #ECE6DE;
+    --cream-light: #F6F4F0;
+    --green-accent: #9FD297;
+    --text-primary: #1a1a1a;
+    --text-secondary: #555;
+    --border: #ddd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Tajawal', 'Segoe UI', sans-serif;
+    background: var(--cream-light);
+    color: var(--text-primary);
+    direction: rtl;
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  .pp-header {
+    background: var(--teal-dark);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    min-height: 110px;
+  }
+    .pp-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 16px;
+  }
+    .pp-logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row-reverse;
+  }
+    .pp-emblem {
+    height: 110px;
+    width: auto;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pp-emblem img { height: 200px; width: auto; object-fit: contain; }
+    .pp-org-name { display: none; }
+  .pp-gold-bar { height: 4px; background: var(--gold-dark); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 4px;
+    direction: rtl;
+  }
+  .nav-tab {
+    padding: 7px 16px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .nav-tab.active { background: white; color: var(--teal-dark); font-weight: 600; }
+  .nav-tab:hover:not(.active) { background: rgba(255,255,255,0.15); color: white; }
+
+  /* ===== PAGES ===== */
+  .page { display: none; max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+  .page.active { display: block; }
+  .page-wide { max-width: 1200px; }
+
+  /* ===== WELCOME PAGE ===== */
+  .welcome-hero {
+    background: var(--teal-dark);
+    border-radius: 12px;
+    padding: 48px 40px;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: -30px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -20px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .welcome-hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+  .welcome-hero p { font-size: 15px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.7; }
+  .welcome-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .welcome-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .meta-card {
+    background: white;
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .meta-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .meta-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .meta-card .value { font-size: 18px; font-weight: 600; color: var(--teal-dark); }
+
+  .survey-type-select {
+    background: white;
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .survey-type-select h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--teal-dark); }
+  .type-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .type-option {
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .type-option:hover { border-color: var(--teal-mid); }
+  .type-option.selected { border-color: var(--teal-dark); background: var(--teal-light); }
+  .type-option .t-icon { font-size: 32px; margin-bottom: 8px; }
+  .type-option .t-title { font-size: 14px; font-weight: 600; }
+  .type-option .t-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* ===== FORM ===== */
+  .section-header {
+    background: var(--teal-dark);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 10px 10px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .section-badge {
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 12px;
+  }
+  .section-body {
+    background: white;
+    border: 0.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 0;
+  }
+
+  .sub-section-title {
+    background: var(--cream-dark);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    border-bottom: 0.5px solid var(--border);
+    border-right: 4px solid var(--gold-dark);
+  }
+
+  /* ===== رأس مقياس التقييم — ثابت عند التمرير ===== */
+  .likert-header {
+    display: grid;
+    grid-template-columns: 1fr repeat(5, 80px);
+    gap: 0;
+    padding: 10px 20px;
+    background: var(--cream-dark);
+    border-bottom: 1.5px solid var(--teal-mid);
+    position: sticky;
+    top: 118px; /* أسفل الهيدر مباشرة */
+    z-index: 10;
+  }
+  .likert-header .lh-empty { }
+  .likert-header .lh-label {
+    text-align: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    line-height: 1.3;
+    padding: 2px 2px;
+  }
+  .likert-header .lh-label span {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin: 0 auto 4px;
+    line-height: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+  }
+  .lh-label:nth-child(2) span { background: #dc3545; }
+  .lh-label:nth-child(3) span { background: #fd7e14; }
+  .lh-label:nth-child(4) span { background: #e6ac00; }
+  .lh-label:nth-child(5) span { background: var(--teal-mid); }
+  .lh-label:nth-child(6) span { background: var(--teal-dark); }
+
+  /* ===== صف السؤال ===== */
+  .question-row {
+    display: grid;
+    grid-template-columns: 1fr repeat(5, 80px);
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    border-bottom: 0.5px solid #f0f0f0;
+    transition: background 0.15s;
+  }
+  .question-row:last-child { border-bottom: none; }
+  .question-row:hover { background: #fafafa; }
+  .question-row.answered { background: rgba(2, 128, 122, 0.03); }
+
+  .q-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    padding: 14px 20px;
+    border-left: 0.5px solid #f0f0f0;
+  }
+  .q-num {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    text-align: center; line-height: 24px;
+    font-size: 12px; font-weight: 600;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  /* خلية الإجابة */
+  .likert-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 52px;
+    border-left: 0.5px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .likert-cell:hover { background: rgba(48,156,153,0.06); }
+
+  .likert-radio {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: white;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .likert-radio::after {
+    content: '';
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  /* ألوان الاختيار */
+  .question-row.sel-1 .likert-cell:nth-child(2) { background: rgba(220,53,69,0.08); }
+  .question-row.sel-2 .likert-cell:nth-child(3) { background: rgba(253,126,20,0.08); }
+  .question-row.sel-3 .likert-cell:nth-child(4) { background: rgba(255,193,7,0.08); }
+  .question-row.sel-4 .likert-cell:nth-child(5) { background: rgba(48,156,153,0.08); }
+  .question-row.sel-5 .likert-cell:nth-child(6) { background: rgba(2,128,122,0.1); }
+
+  .question-row.sel-1 .likert-cell:nth-child(2) .likert-radio { border-color: #dc3545; background: #dc3545; }
+  .question-row.sel-2 .likert-cell:nth-child(3) .likert-radio { border-color: #fd7e14; background: #fd7e14; }
+  .question-row.sel-3 .likert-cell:nth-child(4) .likert-radio { border-color: #e6ac00; background: #e6ac00; }
+  .question-row.sel-4 .likert-cell:nth-child(5) .likert-radio { border-color: var(--teal-mid); background: var(--teal-mid); }
+  .question-row.sel-5 .likert-cell:nth-child(6) .likert-radio { border-color: var(--teal-dark); background: var(--teal-dark); }
+
+  .question-row[class*="sel-"] .likert-radio::after { opacity: 1; }
+
+  .scale-legend { display: none; }
+  .mobile-label { display: none !important; }
+
+  /* موبايل */
+  @media (max-width: 680px) {
+    .likert-header { display: none; }
+    .question-row {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 14px 16px;
+      gap: 10px;
+    }
+    .q-text { padding: 0; border-left: none; }
+    .mobile-likert-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .likert-cell {
+      flex-direction: column;
+      gap: 4px;
+      font-size: 10px;
+      min-height: unset;
+      padding: 6px 2px;
+      border-left: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      flex: 1;
+    }
+    .likert-cell .mobile-label { font-size: 9px; color: var(--text-secondary); text-align: center; line-height: 1.2; }
+  }
+
+  .open-question {
+    padding: 16px 20px;
+    border-bottom: 0.5px solid #f0f0f0;
+  }
+  .open-question:last-child { border-bottom: none; }
+  .open-q-label { font-size: 14px; margin-bottom: 8px; line-height: 1.6; color: var(--text-primary); }
+  .open-q-label .q-num { display: inline-block; }
+  textarea.open-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 80px;
+    direction: rtl;
+    transition: border-color 0.2s;
+  }
+  textarea.open-input:focus { outline: none; border-color: var(--teal-mid); }
+
+  /* General info section */
+  .general-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 20px;
+  }
+  .form-group label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    direction: rtl;
+    background: white;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--teal-mid); }
+
+  /* Progress */
+  .progress-bar-wrap {
+    background: white;
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-bar-track {
+    flex: 1;
+    background: var(--cream-dark);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to left, var(--teal-mid), var(--teal-dark));
+    border-radius: 10px;
+    transition: width 0.4s;
+  }
+  .progress-text { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+  .progress-pct { font-size: 16px; font-weight: 700; color: var(--teal-dark); min-width: 42px; text-align: center; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--teal-dark); color: white; }
+  .btn-primary:hover { background: #026860; }
+  .btn-gold { background: var(--gold-dark); color: white; }
+  .btn-gold:hover { background: #9a8060; }
+  .btn-outline {
+    background: white;
+    color: var(--teal-dark);
+    border: 1.5px solid var(--teal-dark);
+  }
+  .btn-outline:hover { background: var(--teal-light); }
+  .btn-danger { background: #dc3545; color: white; }
+  .btn-danger:hover { background: #c82333; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-lg { padding: 14px 32px; font-size: 16px; }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    padding: 20px;
+    background: white;
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+  }
+
+  /* ===== SUCCESS PAGE ===== */
+  .success-box {
+    background: white;
+    border-radius: 12px;
+    padding: 60px 40px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+  }
+  .success-icon { font-size: 64px; margin-bottom: 20px; }
+  .success-box h2 { font-size: 24px; color: var(--teal-dark); margin-bottom: 12px; }
+  .success-box p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 6px; }
+  .ref-badge {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    border: 1px solid var(--teal-mid);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 16px 0;
+    direction: ltr;
+  }
+
+  /* ===== ADMIN DASHBOARD ===== */
+  .admin-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--teal-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 0.5px solid var(--border);
+    text-align: center;
+  }
+  .kpi-card .kpi-icon { font-size: 28px; margin-bottom: 8px; }
+  .kpi-card .kpi-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .kpi-card .kpi-value { font-size: 28px; font-weight: 700; color: var(--teal-dark); }
+  .kpi-card .kpi-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .chart-card {
+    background: white;
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--teal-dark); }
+
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Filter bar */
+  .filter-bar {
+    background: white;
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-bar input, .filter-bar select {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    direction: rtl;
+    flex: 1; min-width: 140px;
+    background: white;
+  }
+  .filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: var(--teal-mid); }
+
+  /* Responses table */
+  .table-wrap {
+    background: white;
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--teal-dark);
+    color: white;
+    padding: 12px 14px;
+    text-align: right;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: #fafafa; }
+  tbody tr:hover { background: var(--teal-light); }
+  tbody td { padding: 11px 14px; border-bottom: 0.5px solid #f0f0f0; color: var(--text-primary); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .score-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .score-high { background: #d4edda; color: #155724; }
+  .score-mid { background: #fff3cd; color: #856404; }
+  .score-low { background: #f8d7da; color: #721c24; }
+
+  .type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .type-member { background: var(--teal-light); color: var(--teal-dark); }
+  .type-admin { background: #fff3cd; color: #856404; }
+
+  /* Export buttons */
+  .export-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Modal / Response detail */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 28px;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--teal-light);
+  }
+  .modal-header h3 { font-size: 18px; color: var(--teal-dark); }
+  .modal-close {
+    background: none; border: none; font-size: 22px; cursor: pointer;
+    color: var(--text-secondary); line-height: 1;
+  }
+  .modal-close:hover { color: #dc3545; }
+  .modal-section-title {
+    background: var(--teal-dark);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 16px 0 8px;
+  }
+  .modal-q-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid #f0f0f0;
+    font-size: 13px;
+    align-items: center;
+  }
+  .modal-q-row:last-child { border-bottom: none; }
+
+  /* Question analysis */
+  .analysis-card {
+    background: white;
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .analysis-card .q-label { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary); }
+  .analysis-card .avg-score { font-size: 24px; font-weight: 700; color: var(--teal-dark); }
+  .mini-bars { margin-top: 10px; }
+  .mini-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 12px; }
+  .mini-bar-label { width: 80px; color: var(--text-secondary); flex-shrink: 0; }
+  .mini-bar-track { flex: 1; background: var(--cream-dark); height: 8px; border-radius: 4px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 4px; }
+  .mini-bar-count { color: var(--text-secondary); min-width: 24px; text-align: left; }
+
+  /* Axis analysis table */
+  .axis-table {
+    background: white;
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .axis-table table td { vertical-align: middle; }
+
+  .pagination { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 12px; }
+  .page-btn {
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .page-btn.active { background: var(--teal-dark); border-color: var(--teal-dark); color: white; }
+  .page-btn:hover:not(.active) { border-color: var(--teal-mid); color: var(--teal-dark); }
+
+  /* Survey toggle */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px; height: 26px;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 26px;
+    transition: 0.3s;
+  }
+  .toggle-slider:before {
+    position: absolute;
+    content: '';
+    height: 20px; width: 20px;
+    right: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--teal-dark); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(-24px); }
+
+  /* Footer */
+  .pp-footer {
+    background: var(--teal-dark);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    margin-top: auto;
+  }
+  .pp-footer a { color: var(--gold-light); text-decoration: none; }
+
+  /* Admin login */
+  .login-wrap {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    border: 0.5px solid var(--border);
+    text-align: center;
+  }
+  .login-card h2 { font-size: 20px; color: var(--teal-dark); margin-bottom: 6px; }
+  .login-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+  .login-field { margin-bottom: 14px; text-align: right; }
+  .login-field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .login-field input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; }
+  .login-field input:focus { outline: none; border-color: var(--teal-mid); }
+  .login-err { color: #dc3545; font-size: 12px; margin-top: 8px; display: none; }
+
+  /* Manage questions */
+  .q-edit-row {
+    background: white;
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .q-edit-row textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 13px; resize: vertical; min-height: 52px; direction: rtl; }
+  .q-edit-row textarea:focus { outline: none; border-color: var(--teal-mid); }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .alert-info { background: var(--teal-light); color: var(--teal-dark); border: 1px solid var(--teal-mid); }
+  .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+
+  @media (max-width: 680px) {
+      .pp-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 16px;
+  }
+    .pp-org-name .line2 { font-size: 16px; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 6px 10px; font-size: 11px; }
+    .question-row { grid-template-columns: 1fr; }
+    .likert-scale { justify-content: center; }
+    .charts-row { grid-template-columns: 1fr; }
+    .type-options { grid-template-columns: 1fr; }
+    .general-info-grid { grid-template-columns: 1fr; }
+    .modal-box { width: 96%; padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="pp-header">
+      <div class="pp-header-inner">
+    <div class="pp-logo-area">
+      <div class="pp-emblem">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNDEuMDggMzQxLjA4Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmb250LXNpemU6IDIwLjAxcHg7CiAgICAgIH0KCiAgICAgIC5jbHMtMSwgLmNscy0yIHsKICAgICAgICBmb250LWZhbWlseTogQmFoaWpUaGVTYW5zQXJhYmljLUJvbGQsICdCYWhpaiBUaGVTYW5zQXJhYmljJzsKICAgICAgICBmb250LXdlaWdodDogNzAwOwogICAgICB9CgogICAgICAuY2xzLTEsIC5jbHMtMyB7CiAgICAgICAgZmlsbDogI2I3ODUyZTsKICAgICAgfQoKICAgICAgLmNscy00LCAuY2xzLTIgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNSB7CiAgICAgICAgZmlsbDogIzAwNmQ2NzsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmb250LXNpemU6IDEwLjI2cHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnIGlkPSJMYXllcl8xIiBkYXRhLW5hbWU9IkxheWVyIDEiPgogICAgPGc+CiAgICAgIAogICAgICA8Zz4KICAgICAgICA8Zz4KICAgICAgICAgIDxnPgogICAgICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik0yMjcuNzYsMTYxLjY2Yy43My0uMzQsMS4wNC0uOTIuOTQtMS42Mi0uMS0uNjYtLjYzLTEuMTItMS4zMy0xLjE1cy0xLjIzLjQtMS4zOCwxLjA5LjE0LDEuMzYuOSwxLjY1djEwLjA5Yy0uMTMuMTItLjQyLjE4LS41NS4xM3MtLjI5LS4yOC0uMjktLjQ1Yy0uMTQtMy44LTEuNC03LjM3LTMuODItMTAuMzkuODQtMy4yLDEuNDItNi4zOCwxLjg3LTkuNjgsMS4xNS04LjQ0LDEuNDctMTcuMzctLjM4LTI1LjY4LTIuMzQsMy41Mi0zLjY2LDcuNjMtNC43LDExLjcxLS45NywzLjgxLTEuNiw3LjYxLTIuMTUsMTEuNDctLjk1LTIuMTYtMS40NS00LjI0LTEuNjYtNi41LS41OC02LjQ4LjQxLTEyLjg2LDIuODMtMTguOTctMi4wNiwxLjM2LTMuODQsMi44NC01LjQ0LDQuNTktMS45MSwyLjA5LTMuNiw0LjI0LTUuMTcsNi42LTIuMjQsMy4zNy00LjA4LDYuOC01LjczLDEwLjY5LTEuMDgtNi41OSwxLjE2LTEzLDQuNjEtMTguNTQsMS45NC0zLjExLDQuMjEtNS44OCw2Ljk5LTguMzEtMS44My4zLTMuNDcuODctNS4xNCwxLjYyLTcuMzYsMy4zLTE0LjAzLDkuNDQtMTkuMzMsMTUuNjguNTUtMy4xNSwxLjc5LTUuOTMsMy4zNS04LjU2LDQuNTQtNy42MywxMi4wMS0xMy40NSwyMC40NS0xNS45My0xLjQtLjI2LTIuNjQtLjMxLTMuOTgtLjI0LTIuNTQuMTUtNC45NS41Mi03LjQzLDEuMTQtNC42MSwxLjE2LTguOTQsMi44MS0xMy4yNyw1LjAyLjgtMS4yOCwxLjc0LTIuMzEsMi44MS0zLjMxLDQuMDItMy43Nyw5LjQ1LTYuNTYsMTQuNzUtOC4xNiwzLjk3LTEuMTksNy45OS0xLjczLDEyLjEzLTEuNDYtMS4yMi0xLjQ1LTIuODItMi4yNS00LjU5LTMuMiwyLjY5LS44MSw1LjQ5LS42MSw3Ljk4Ljc4LS43OC0xLjYxLTIuMDUtMi43Ni0zLjM2LTQsMi43NC0uMDEsNS4xNCwxLjEyLDcuMjIsMi44NC4zMi0xLjcxLDEuMTMtMy4yMSwyLjQxLTQuNDcsMS4zMiwxLjE5LDIuMTEsMi43MiwyLjQ2LDQuNTEsMi4wNS0xLjc2LDQuNDktMi44OCw3LjIzLTIuODktMS4zMiwxLjIxLTIuNTQsMi4zNS0zLjM5LDQsMS4zNC0uNjIsMi42Ni0xLjE4LDQuMTgtMS4yMiwxLjMxLS4wNCwyLjU3LjA1LDMuODEuNDQtMS42My44OC0zLjQ0LDEuNzYtNC41NywzLjIxLDguODEtLjU3LDE4LjUzLDIuNzcsMjUuMzksOC4zNiwxLjYyLDEuMzIsMy4wOCwyLjc0LDQuMjIsNC41Ny00LjQ1LTIuMjgtOC45Mi0zLjk4LTEzLjY4LTUuMTItMy4zMy0uOC03LjQ2LTEuNDQtMTAuODgtLjgsOC41NSwyLjYsMTUuOTIsOC4zNCwyMC40OCwxNi4xMSwxLjU0LDIuNjEsMi42OCw1LjQsMy4yOCw4LjQ0LTQuODMtNS42OS0xMC42OS0xMS4yLTE3LjI0LTE0LjctMi4yOS0xLjIyLTQuNi0yLjE5LTcuMTktMi42NSwxLjEsMS4xLDIuMjEsMi4xLDMuMjMsMy4yOCw1LjM5LDYuMjcsOS43LDE1LjA4LDguMywyMy42Mi0yLjEtNC45OC00LjcxLTkuNjYtOC4wMi0xMy45NS0yLjMzLTMuMDItNS4wMi01LjkzLTguMzQtNy45OCwyLjMzLDUuODMsMy4zNSwxMS45NywyLjkyLDE4LjIxLS4xOCwyLjUtLjY3LDQuODktMS43Myw3LjIzLS42Mi00LjI1LTEuMy04LjIxLTIuMzYtMTIuMjMtLjk5LTMuNzQtMi4yNi03LjY0LTQuNDgtMTAuOTMtMi4xNSw5LjU3LTEuNDEsMjAuMDkuMjUsMjkuNjJsMS4yNSw1LjcyYy0yLjM3LDMuMDEtMy43NCw2LjU5LTMuODMsMTAuNDQsMCwuMjItLjI1LjQzLS40MS40NS0uMjQuMDItLjQzLS4yMi0uNDMtLjUydi05LjY5WiIvPgogICAgICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Ik0yMzAuNDEsMTkxLjljLS4xLS43Ny4zNS0xLjQ1LDEuMDctMS42NmwxLjMyLS4zOWMuNDktLjM5LjQ4LTEuMTIuMDMtMS42bC01LjUxLTUuODgtNS42MSw2Yy0uMjQuMjUtLjI0LjgxLS4xNSwxLjA2LjMzLjg4LDIuMS4zNCwyLjYxLDEuNzMuMzEuODYtLjEzLDEuNjktLjgyLDIuMTVzLTEuNjIuMzQtMi4zMi0uMmMtLjc4LS42MS0xLjA2LTEuNTQtMS4xOC0yLjU4bC0yLjIxLDEuOTNjLTIuNzUsMi4zOS02LjQ3LDMuMjEtOS45LDEuODctLjkzLS4zNi0xLjczLTEuMDMtMi4xNi0xLjktLjc2LTEuNTQtLjI1LTMuMzksMS4zMi00LjExLDEuMTMtLjUyLDIuNDctLjE3LDMuMzQuNzMsMS41LDEuNTUsMy4yNCwxLjM3LDQuOTQuMDcsMS40MS0xLjA4LDEuNjUtMi41NS44My0yLjM2cy0xLjQ4LS4yMy0xLjgtLjk2Yy0uNDEtLjk2LS4wMi0yLjIxLDEuMDQtMi41LjczLS4yLDEuNDQuMjIsMS45Ljc3LjUyLjYxLjY4LDEuMzQuODcsMi4xOWwyLjcxLTIuODIsMy43OS00LjEyLTUuOC01LjhjLTIuNi0yLjYtNS4zOC00Ljg3LTguMjktNy4xMS00LjYzLTMuNTctOS44NC02LjQyLTE1LjYtNy40NWwtLjIyLjcsMi40Myw1LjkyLDUuNTksMTMuNDFjLjgyLjEsMS4yNy43NSwxLjA5LDEuNDItLjU3LDIuMTItMS43OCwzLjg5LTMuMzgsNS4zLTQuMjMsMy43MS0xMC4zOCwzLjgxLTE0LjcxLjIxLTEuNzUtMS40Ni0zLjEyLTMuMzUtMy42Ny01LjYtLjE5LS43Ni40NS0xLjI3LDEuMTMtMS4zM2w2LjUtMTQuNzcsMS45MS00LjQ2Yy0uMjYtLjQ2LS40LS44NC0uMzktMS40LTEuODgtLjM2LTMuNzQtLjQ1LTUuODMtLjU1LDIuOTctMS40Myw2LjIyLTEuOTEsOS41Mi0xLjYzLDcuNi42NCwxNC4xMSwzLjcxLDIwLjEyLDguMjcsMi40OSwxLjg5LDQuNzYsMy44OCw2Ljk1LDYuMDlsMi4zLDIuMzIsMy4xOCwzLjM2YzguOTQtOS43NCwxOC43Ny0xOC45MiwzMi42LTIwLjA1LDMuMjYtLjI3LDYuNDguMjEsOS40MSwxLjYxLTIuMDMuMS0zLjg1LjE3LTUuNzQuNTItLjAyLjUyLS4xMi45My0uNDIsMS4zN2wzLjc2LDguOCw0LjY0LDEwLjVjLjQuMDYuNzMuMTkuOS40LjE5LjI1LjMyLjcxLjIzLDEuMDItLjU3LDEuOTctMS42NSwzLjY3LTMuMTIsNS4wMy0zLjU0LDMuMjktOC42MSw0LjA4LTEyLjksMS44NS0yLjc4LTEuNDUtNC45LTMuODUtNS43My02Ljg5LS4yLS43Mi4zMi0xLjM3LDEuMDgtMS40bDcuOTktMTkuMTRjLjExLS4yNS0uMTEtLjczLS4yLS45LTYuMTcsMS4xNS0xMS4xOSw0LjAyLTE2LjA5LDcuODQtNC44OCwzLjgtOS4zMiw4LjAxLTEzLjU4LDEyLjUzbDIuMTMsMi4zMSw0LjM1LDQuNjNjLjI0LS44OC4zOS0xLjY2Ljk2LTIuMy40OC0uNTQsMS4yNi0uOTIsMS45Ni0uNjMsMS4xNS40OCwxLjQsMS45Ni42NiwyLjkyLS40NS41OC0xLjE0LjYyLTEuODkuNDYtLjE4LjQtLjA5Ljg3LjE2LDEuMjYsMS4yMiwxLjk1LDMuOTgsMi45MSw1LjQ4LDEuNDkuNDUtLjQyLjktLjg2LDEuNDYtMS4xMS45LS40LDEuODMtLjM4LDIuNy4xNC42Ny40MSwxLjIzLDEuMiwxLjMxLDIuMTUuMTIsMS40OS0uNjgsMi44NS0yLjEsMy41MS0zLjAyLDEuNC02LjYuOTItOS4zNS0uOThsLTMuMTctMi42N2MtLjA4LDEuMDEtLjM2LDEuOTEtMS4wNywyLjUyLS41OS41LTEuMzIuNzItMi4wNi40NC0uNi0uMjItMS4xNi0uNzYtMS4yNy0xLjU4Wk0xOTQuMDcsMTgwLjM5aDcuNTFjLS4wNC0uNDUuMDgtLjguMzctMS4xNmwtNy45NC0xOC45OWMtLjI0LjA2LS40My4xNC0uNjEuMjl2MTguNjNjLjU0LjI2LjczLjcuNjcsMS4yM1pNMjYxLjI0LDE3OS4xNHYtMTYuMjJzLjAxLTIuNDMuMDEtMi40M2wtLjU5LS4yNC03Ljk2LDE5LjA0Yy4zNi4zMS40Ni42Ny40MSwxLjFoNy40OGMtLjAxLS41Mi4xNC0uOTQuNjUtMS4yNVpNMjYyLjc1LDE4MC4zOWg3Ljg0Yy0uMDQtLjQyLjA2LS43Ny4zNS0xLjExbC04LjM0LTE5LjA1LS41OC4yNHYxOC42N2MuNTYuMjMuNzIuNy43MywxLjI1Wk0xOTEuOTUsMTgwLjM5Yy0uMDQtLjYyLjE4LS45Ny42OC0xLjIzdi0xOC42MmMtLjE4LS4xMy0uNDEtLjIxLS41OS0uMjJsLTguMzIsMTguOTZjLjMxLjM0LjQxLjYyLjM3LDEuMDloNy44N1oiLz4KICAgICAgICAgIDwvZz4KICAgICAgICAgIDxnPgogICAgICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTMiIHBvaW50cz0iMTMwLjI1IDEwNi44OCAxMzAuMjUgMTE5LjY2IDE0My4wMyAxMTkuNjYgMTQzLjAzIDEzMi40NCAxNTUuODEgMTMyLjQ0IDE1NS44MSAxMDYuODggMTMwLjI1IDEwNi44OCIvPgogICAgICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTQiIHBvaW50cz0iMTEzLjM0IDEzMi40NCAxMTMuMzQgMTQwLjg5IDEyMS44IDE0MC44OSAxMjEuOCAxNDkuMzUgMTMwLjI1IDE0OS4zNSAxMzAuMjUgMTMyLjQ0IDExMy4zNCAxMzIuNDQiLz4KICAgICAgICAgICAgPHBvbHlnb24gY2xhc3M9ImNscy00IiBwb2ludHM9IjEzMC4yNSAxNDkuMzUgMTMwLjI1IDE1Ny44IDEzOC43MSAxNTcuOCAxMzguNzEgMTY2LjI2IDE0Ny4xNiAxNjYuMjYgMTQ3LjE2IDE0OS4zNSAxMzAuMjUgMTQ5LjM1Ii8+CiAgICAgICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtNCIgcG9pbnRzPSI5Ni40NCAxMTUuNTMgOTYuNDQgMTIzLjk5IDEwNC44OSAxMjMuOTkgMTA0Ljg5IDEzMi40NCAxMTMuMzQgMTMyLjQ0IDExMy4zNCAxMTUuNTMgOTYuNDQgMTE1LjUzIi8+CiAgICAgICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtNCIgcG9pbnRzPSI5OC4xOCAxNTEuMDkgOTguMTggMTU3LjggMTA0Ljg5IDE1Ny44IDEwNC44OSAxNjQuNTEgMTExLjYgMTY0LjUxIDExMS42IDE1MS4wOSA5OC4xOCAxNTEuMDkiLz4KICAgICAgICAgICAgPHBvbHlnb24gY2xhc3M9ImNscy00IiBwb2ludHM9IjExNS4wOSAxNjggMTE1LjA5IDE3NC43MSAxMjEuOCAxNzQuNzEgMTIxLjggMTgxLjQyIDEyOC41MSAxODEuNDIgMTI4LjUxIDE2OCAxMTUuMDkgMTY4Ii8+CiAgICAgICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtNCIgcG9pbnRzPSI4MS4yNyAxMzQuMTkgODEuMjcgMTQwLjg5IDg3Ljk4IDE0MC44OSA4Ny45OCAxNDcuNiA5NC42OSAxNDcuNiA5NC42OSAxMzQuMTkgODEuMjcgMTM0LjE5Ii8+CiAgICAgICAgICAgIDxnPgogICAgICAgICAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtNCIgcG9pbnRzPSI3NC44MyAxNjEuNTYgNzQuODMgMTY2LjI2IDc5LjUzIDE2Ni4yNiA3OS41MyAxNzAuOTUgODQuMjMgMTcwLjk1IDg0LjIzIDE2MS41NiA3NC44MyAxNjEuNTYiLz4KICAgICAgICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTQiIHBvaW50cz0iOTEuNzQgMTc4LjQ3IDkxLjc0IDE4My4xNiA5Ni40NCAxODMuMTYgOTYuNDQgMTg3Ljg2IDEwMS4xMyAxODcuODYgMTAxLjEzIDE3OC40NyA5MS43NCAxNzguNDciLz4KICAgICAgICAgICAgPC9nPgogICAgICAgICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTQiIHBvaW50cz0iNjcuNzIgMTg4LjI2IDY3LjcyIDE5MS42MiA3MS4wNyAxOTEuNjIgNzEuMDcgMTk0Ljk3IDc0LjQzIDE5NC45NyA3NC40MyAxODguMjYgNjcuNzIgMTg4LjI2Ii8+CiAgICAgICAgICA8L2c+CiAgICAgICAgPC9nPgogICAgICAgIDx0ZXh0IGNsYXNzPSJjbHMtMSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjYuMjEgMjIwLjk4KSI+PHRzcGFuIHg9IjAiIHk9IjAiPtio2LHZhtin2YXYrCDYp9mE2KrYrdmI2YQg2KfZhNmF2KTYs9iz2Yo8L3RzcGFuPjwvdGV4dD4KICAgICAgICA8dGV4dCBjbGFzcz0iY2xzLTIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDY4LjA5IDIzOS41KSI+PHRzcGFuIHg9IjAiIHk9IjAiPklOU1RJVFVUSU9OQUwgVFJBTlNGT1JNQVRJT04gUFJPR1JBTTwvdHNwYW4+PC90ZXh0PgogICAgICA8L2c+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4=" alt="شعار النيابة العامة">
+      </div>
+      <div class="pp-org-name">
+        <div class="line1">المملكة العربية السعودية</div>
+        <div class="line2">النيابة العامة</div>
+        <div class="line3">PUBLIC PROSECUTION</div>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('welcome')" id="tab-welcome">الاستبيان</button>
+      <button class="nav-tab" onclick="showAdminLogin()" id="tab-admin">لوحة التحكم</button>
+    </nav>
+  </div>
+  <div class="pp-gold-bar"></div>
+</header>
+
+<!-- ===== WELCOME PAGE ===== -->
+<div class="page active" id="page-welcome">
+  <div class="welcome-hero">
+    <h1>استبيان تجربة المستفيد النيابي<br>المحامون</h1>
+    <p>يهدف هذا الاستبيان إلى جمع مرئيات المحامين حول تجربتهم مع خدمات النيابة العامة، وتحديد نقاط التحسين لرفع جودة الخدمة وكفاءتها.</p>
+    <div class="welcome-badge">🔒 جميع بياناتكم سرية ومخصصة للأغراض التحليلية فقط</div>
+  </div>
+
+  <div class="welcome-meta">
+    <div class="meta-card">
+      <div class="icon">📋</div>
+      <div class="label">عدد الأسئلة</div>
+      <div class="value" id="q-count-display">20</div>
+    </div>
+    <div class="meta-card">
+      <div class="icon">⏱️</div>
+      <div class="label">الوقت المقدّر</div>
+      <div class="value">12–15</div>
+      <div class="kpi-sub" style="font-size:12px; color:var(--text-secondary);">دقيقة</div>
+    </div>
+    <div class="meta-card">
+      <div class="icon">📊</div>
+      <div class="label">المحاور</div>
+      <div class="value">5</div>
+    </div>
+    <div class="meta-card">
+      <div class="icon">🎯</div>
+      <div class="label">المشاركة</div>
+      <div class="value">اختيارية</div>
+    </div>
+  </div>
+
+  <div class="survey-type-select">
+    <h3>🔹 الفئة المستهدفة</h3>
+    <div style="display:flex; align-items:center; gap:14px; padding:16px; background:var(--teal-light); border-radius:8px; border:1.5px solid var(--teal-mid);">
+      <div style="font-size:32px;">⚖️</div>
+      <div>
+        <div style="font-size:15px; font-weight:700; color:var(--teal-dark);">المحامون</div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">استبيان تجربة المستفيد النيابي – خاص بالمحامين المتعاملين مع النيابة العامة</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center;">
+    <button class="btn btn-primary btn-lg" onclick="startSurvey()">
+      ابدأ الاستبيان &larr;
+    </button>
+  </div>
+</div>
+
+<!-- ===== SURVEY PAGE ===== -->
+<div class="page" id="page-survey">
+  <div class="progress-bar-wrap">
+    <div class="progress-pct" id="prog-pct">0%</div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="prog-text">0 / 0 إجابة</div>
+  </div>
+
+  <div id="survey-form-container"></div>
+
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="showPage('welcome')">← العودة</button>
+    <div style="font-size:13px; color:var(--text-secondary);" id="validation-msg"></div>
+    <button class="btn btn-primary btn-lg" onclick="submitSurvey()">إرسال الاستبيان ✓</button>
+  </div>
+</div>
+
+<!-- ===== SUCCESS PAGE ===== -->
+<div class="page" id="page-success">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <h2>شكرًا لمشاركتكم!</h2>
+    <p>تم استلام استجابتكم بنجاح وستُسهم في تحسين الأداء المؤسسي للنيابة العامة.</p>
+    <p>رقم الاستجابة المرجعي:</p>
+    <div class="ref-badge" id="ref-num">PP-LAW-0001</div>
+    <p style="margin-top: 16px; font-size: 13px;">يمكنكم الاحتفاظ بهذا الرقم للرجوع إليه عند الحاجة.</p>
+    <div style="margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <button class="btn btn-primary" onclick="showPage('welcome')">تعبئة استبيان آخر</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN LOGIN ===== -->
+<div class="page" id="page-login">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="font-size:40px; margin-bottom:12px;">🔐</div>
+      <h2>لوحة تحكم الإدارة</h2>
+      <p>أدخل بيانات الدخول للوصول إلى لوحة التحكم</p>
+      <div class="login-field">
+        <label>اسم المستخدم</label>
+        <input type="text" id="login-user" placeholder="اسم المستخدم">
+      </div>
+      <div class="login-field">
+        <label>كلمة المرور</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeypress="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-err" id="login-err">⚠️ بيانات الدخول غير صحيحة</div>
+      <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="doLogin()">تسجيل الدخول</button>
+      <p style="font-size:11px; color:var(--text-secondary); margin-top:14px;"> <strong></strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div class="page page-wide" id="page-admin">
+
+  <!-- Admin Nav -->
+  <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+    <div style="display: flex; gap: 8px;">
+      <button class="btn btn-primary btn-sm" onclick="showAdminTab('overview')" id="at-overview">نظرة عامة</button>
+      <button class="btn btn-outline btn-sm" onclick="showAdminTab('responses')" id="at-responses">الردود</button>
+      <button class="btn btn-outline btn-sm" onclick="showAdminTab('analysis')" id="at-analysis">التحليل</button>
+      <button class="btn btn-outline btn-sm" onclick="showAdminTab('manage')" id="at-manage">الإدارة</button>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="adminLogout()">تسجيل الخروج</button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div id="admin-tab-overview">
+    <div class="admin-section-title">📊 نظرة عامة على الاستبيان</div>
+
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>توزيع الردود حسب مجال القضايا</h3>
+        <canvas id="chart-type" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>متوسط التقييم حسب المحور</h3>
+        <canvas id="chart-axes" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>توزيع الإجابات على مقياس ليكرت (جميع الأسئلة)</h3>
+      <canvas id="chart-likert" height="120"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>الردود بمرور الوقت</h3>
+      <canvas id="chart-timeline" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- RESPONSES TAB -->
+  <div id="admin-tab-responses" style="display:none;">
+    <div class="admin-section-title">📋 إدارة الردود</div>
+
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="بحث بالرقم المرجعي أو الوحدة..." oninput="filterResponses()">
+      <select id="filter-type" onchange="filterResponses()">
+        <option value="">جميع المجالات</option>
+        <option value="تصميم التجربة">تصميم التجربة</option>
+        <option value="التقنية والبيانات">التقنية والبيانات</option>
+        <option value="الكوادر والثقافة">الكوادر والثقافة</option>
+        <option value="صوت المستفيد">صوت المستفيد</option>
+        <option value="تحسين العمليات والحوكمة">تحسين العمليات والحوكمة</option>
+      </select>
+      <select id="filter-score" onchange="filterResponses()">
+        <option value="">جميع التقييمات</option>
+        <option value="high">عالي (4+)</option>
+        <option value="mid">متوسط (3–4)</option>
+        <option value="low">منخفض (أقل من 3)</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="clearFilters()">مسح الفلاتر</button>
+    </div>
+
+    <div class="export-bar">
+      <button class="btn btn-gold btn-sm" onclick="exportExcel()">📥 تصدير Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">📄 تصدير CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="exportPDF()">🖨️ تقرير PDF</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAllData()" style="margin-right: auto;">🗑️ مسح جميع البيانات</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>الرقم المرجعي</th>
+            <th>مجال القضايا</th>
+            <th>المنطقة / الفرع</th>
+            <th>المتوسط العام</th>
+            <th>التاريخ</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="responses-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- ANALYSIS TAB -->
+  <div id="admin-tab-analysis" style="display:none;">
+    <div class="admin-section-title">📈 التحليل التفصيلي</div>
+
+    <div class="alert alert-info">تحليل الأسئلة بناءً على جميع الردود المتوفرة. يتم احتساب المتوسطات والتوزيعات تلقائيًا.</div>
+
+    <div class="chart-card" style="margin-bottom:20px;">
+      <h3>متوسط التقييم لكل سؤال</h3>
+      <canvas id="chart-per-question" height="300"></canvas>
+    </div>
+
+    <div class="admin-section-title" style="font-size:16px;">تحليل المحاور</div>
+    <div class="axis-table">
+      <table>
+        <thead>
+          <tr>
+            <th>المحور</th>
+            <th>المجال</th>
+            <th>متوسط التقييم</th>
+            <th>المستوى</th>
+          </tr>
+        </thead>
+        <tbody id="axis-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="admin-section-title" style="font-size:16px; margin-top:24px;">الأسئلة المفتوحة</div>
+    <div id="open-answers-container"></div>
+  </div>
+
+  <!-- MANAGE TAB -->
+  <div id="admin-tab-manage" style="display:none;">
+    <div class="admin-section-title">⚙️ إدارة الاستبيان</div>
+
+    <div class="chart-card">
+      <h3>حالة الاستبيان</h3>
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="survey-active" checked onchange="toggleSurvey()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div>
+          <div style="font-size:14px; font-weight:600;" id="survey-status-text">الاستبيان مفعّل</div>
+          <div style="font-size:12px; color:var(--text-secondary);">يمكن للمستجيبين تعبئة الاستبيان</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-top:16px;">
+      <h3>إضافة سؤال جديد (أسئلة مفتوحة)</h3>
+      <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start;">
+        <textarea id="new-q-text" placeholder="أدخل نص السؤال الجديد..." style="border:1.5px solid var(--border); border-radius:6px; padding:10px; font-family:inherit; font-size:14px; resize:vertical; min-height:72px; direction:rtl; width:100%;"></textarea>
+        <button class="btn btn-primary" onclick="addCustomQuestion()">إضافة</button>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-top:16px;">
+      <h3 style="margin-bottom:14px;">تعديل الأسئلة</h3>
+      <div class="alert alert-warning">⚠️ تعديل الأسئلة سيؤثر على الردود المستقبلية فقط. لن تتأثر البيانات المحفوظة مسبقًا.</div>
+      <div id="q-edit-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESPONSE DETAIL MODAL ===== -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-title">تفاصيل الاستجابة</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<footer class="pp-footer">
+  <div>النيابة العامة – المملكة العربية السعودية &nbsp;|&nbsp; <a href="https://www.pp.gov.sa" target="_blank">www.pp.gov.sa</a></div>
+  <div style="margin-top:4px;">نظام تشخيص الوضع الراهن © 2026</div>
+</footer>
+
+<script>
+// ===== DATA =====
+const SURVEYS = {
+  lawyers: {
+    label: 'المحامون',
+    axes: [
+      {
+        title: 'المحور الأول: تصميم التجربة',
+        desc: 'يقيس هذا المحور وضوح الإجراءات والمستندات والمدد الزمنية للخدمات.',
+        fields: [
+          { sub: 'تصميم التجربة', questions: [
+            'إجراءات الخدمات واضحة.',
+            'المستندات المطلوبة معروفة منذ بداية الخدمة.',
+            'يمكنني توقّع خطوات إتمام الخدمة قبل البدء فيها.',
+            'المدد الزمنية المتوقّعة للخدمة واضحة منذ البداية.'
+          ]}
+        ]
+      },
+      {
+        title: 'المحور الثاني: التقنية والبيانات',
+        desc: 'يقيس هذا المحور كفاءة القنوات الرقمية وسهولة الوصول إلى المعلومات والخدمات الإلكترونية.',
+        fields: [
+          { sub: 'التقنية والبيانات', questions: [
+            'القنوات المتاحة تسهّل الوصول إلى الخدمات.',
+            'نظام المحامين يُنجز أعمالي بكفاءة.',
+            'نظام المحامين الإلكتروني سهل الاستخدام.',
+            'أصل إلى معلومات قضاياي وطلباتي بسهولة عند الحاجة.',
+            'لا أحتاج إلى إعادة تقديم بيانات أو مستندات سبق أن قدّمتها.',
+            'الخدمات الإلكترونية تغنيني عن المراجعة الحضورية.'
+          ]}
+        ]
+      },
+      {
+        title: 'المحور الثالث: الكوادر والثقافة',
+        desc: 'يقيس هذا المحور مستوى المهنية والكفاءة في التعامل واستجابة الاستفسارات.',
+        fields: [
+          { sub: 'الكوادر والثقافة', questions: [
+            'يتعامل موظفو النيابة بمهنية واحترام.',
+            'لدى موظفي النيابة الكفاءة للإجابة عن استفساراتي.',
+            'تُعالَج استفساراتي في مدة زمنية مناسبة.'
+          ]}
+        ]
+      },
+      {
+        title: 'المحور الرابع: صوت المستفيد',
+        desc: 'يقيس هذا المحور مدى الاهتمام بملاحظات المحامين وانعكاسها على تطوير الخدمات.',
+        fields: [
+          { sub: 'صوت المستفيد', questions: [
+            'تُعالَج ملاحظاتي وشكاويّ بفعالية.',
+            'أشعر أن ملاحظات المحامين تُؤخذ بعين الاعتبار عند تطوير الخدمات.',
+            'الخدمات الحالية تعكس احتياجات المحامين العملية.'
+          ]}
+        ]
+      },
+      {
+        title: 'المحور الخامس: تحسين العمليات والحوكمة',
+        desc: 'يقيس هذا المحور التنسيق بين الجهات واتساق الخدمة عبر المناطق والفروع.',
+        fields: [
+          { sub: 'تحسين العمليات والحوكمة', questions: [
+            'المدد الفعلية لإنجاز الخدمات تتوافق مع المتوقّع.',
+            'التنسيق بين النيابة والجهات ذات العلاقة (الضبط، التوقيف، السجون، المحاكم) يسهّل رحلتي.',
+            'عند التصعيد إلى المقر الرئيسي، تُعالَج طلباتي بفعالية.',
+            'تجربتي مع النيابة متّسقة بين المناطق والفروع المختلفة.'
+          ]}
+        ]
+      }
+    ],
+    openQuestions: [
+      'ما أكثر مرحلة أو إجراء يسبّب لك الجهد أو التأخير أثناء التعامل مع النيابة العامة؟',
+      'ما أبرز الاختلافات التي تلاحظها بين المناطق أو الفروع في تقديم الخدمات؟',
+      'ما الجهة التي ترى أنها تقدّم تجربة يمكن الاستفادة منها؟ ولماذا؟',
+      'ما أبرز فرصة تحسين ترى أنها ستُحدث أثراً ملموساً في تجربة المحامين أو موكليهم؟'
+    ]
+  }
+};
+
+// State
+let currentType = 'lawyers';
+let answers = {};
+let isLoggedIn = false;
+let surveyActive = true;
+let allResponses = [];
+let filteredResponses = [];
+let currentPage = 1;
+const PER_PAGE = 15;
+let charts = {};
+let customOpenQuestions = { member: [], admin: [] };
+
+// ===== STORAGE =====
+function saveToStorage() {
+  try {
+    localStorage.setItem('pp_responses', JSON.stringify(allResponses));
+    localStorage.setItem('pp_custom_q', JSON.stringify(customOpenQuestions));
+    localStorage.setItem('pp_survey_active', JSON.stringify(surveyActive));
+  } catch(e) {}
+}
+function loadFromStorage() {
+  try {
+    const r = localStorage.getItem('pp_responses');
+    if(r) allResponses = JSON.parse(r);
+    const cq = localStorage.getItem('pp_custom_q');
+    if(cq) customOpenQuestions = JSON.parse(cq);
+    const sa = localStorage.getItem('pp_survey_active');
+    if(sa !== null) surveyActive = JSON.parse(sa);
+  } catch(e) {}
+}
+
+// ===== NAVIGATION =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if(id === 'welcome' || id === 'survey' || id === 'success') document.getElementById('tab-welcome').classList.add('active');
+  if(id === 'admin') document.getElementById('tab-admin').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showAdminLogin() {
+  if(isLoggedIn) { showPage('admin'); refreshAdmin(); }
+  else showPage('login');
+}
+
+function doLogin() {
+  const u = document.getElementById('login-user').value;
+  const p = document.getElementById('login-pass').value;
+  if(u === 'admin' && p === 'ITP@2025') {
+    isLoggedIn = true;
+    document.getElementById('login-err').style.display = 'none';
+    showPage('admin');
+    document.getElementById('tab-admin').classList.add('active');
+    refreshAdmin();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  isLoggedIn = false;
+  showPage('welcome');
+}
+
+// ===== SURVEY TYPE =====
+function selectType(t) { currentType = t; }
+
+// ===== BUILD FORM =====
+function getAllQuestions() {
+  const survey = SURVEYS[currentType];
+  let all = [];
+  survey.axes.forEach((ax, ai) => {
+    ax.fields.forEach((field, fi) => {
+      field.questions.forEach((q, qi) => {
+        all.push({ axis: ax.title, sub: field.sub, text: q, key: `${ai}_${fi}_${qi}` });
+      });
+    });
+  });
+  return all;
+}
+
+function startSurvey() {
+  if(!surveyActive) { alert('الاستبيان متوقف حاليًا. يرجى التواصل مع الإدارة.'); return; }
+  answers = {};
+  buildSurveyForm();
+  showPage('survey');
+  updateProgress();
+}
+
+function buildSurveyForm() {
+  const survey = SURVEYS[currentType];
+  let html = '';
+
+  // General info
+  html += `<div class="section-header">📝 بيانات عامة (اختيارية)</div>
+  <div class="section-body">
+    <div class="general-info-grid">
+      <div class="form-group"><label>المنطقة / الفرع الذي تتعامل معه غالباً</label><input type="text" id="gi-dept" placeholder="مثال: نيابة الرياض"></div>
+      <div class="form-group"><label>عدد سنوات ممارستك للمحاماة</label>
+        <select id="gi-exp">
+          <option value="">اختر...</option>
+          <option>أقل من 3 سنوات</option><option>3–7 سنوات</option><option>8–15 سنة</option><option>أكثر من 15 سنة</option>
+        </select>
+      </div>
+      <div class="form-group"><label>متوسط عدد القضايا أو الطلبات شهرياً</label>
+        <select id="gi-region">
+          <option value="">اختر...</option>
+          <option>1–5 قضايا</option><option>6–15 قضية</option><option>16–30 قضية</option><option>أكثر من 30 قضية</option>
+        </select>
+      </div>
+      <div class="form-group"><label>أبرز مجال لقضاياك</label>
+        <select id="gi-title">
+          <option value="">اختر...</option>
+          <option>جزائي</option><option>تجاري</option><option>أحوال شخصية</option><option>أخرى</option>
+        </select>
+      </div>
+    </div>
+  </div>`;
+
+  // Axes — عرض موحد لكل محور بدون تقسيم مجالات
+  survey.axes.forEach((ax, ai) => {
+    const totalQ = ax.fields.reduce((s,f) => s + f.questions.length, 0);
+    // عنوان المحور + وصفه
+    html += `<div class="section-header">
+      <div style="flex:1;">
+        <div style="font-size:15px; font-weight:700;">📌 ${ax.title}</div>
+        <div style="font-size:12px; font-weight:400; color:rgba(255,255,255,0.8); margin-top:4px;">${ax.desc || ''}</div>
+      </div>
+      <span class="section-badge">${totalQ} سؤال</span>
+    </div>`;
+    // مقياس ليكرت بعد العنوان
+
+    // رأس مقياس التقييم — ثابت وواضح
+    html += `<div class="likert-header">
+      <div class="lh-empty"></div>
+      <div class="lh-label"><span>1</span>لا أوافق بشدة</div>
+      <div class="lh-label"><span>2</span>لا أوافق</div>
+      <div class="lh-label"><span>3</span>محايد</div>
+      <div class="lh-label"><span>4</span>أوافق</div>
+      <div class="lh-label"><span>5</span>أوافق بشدة</div>
+    </div>`;
+    html += `<div class="section-body">`;
+
+    // عرض جميع الأسئلة مجمّعة — المجالات محفوظة في البيانات للتحليل فقط
+    ax.fields.forEach((field, fi) => {
+      field.questions.forEach((q, qi) => {
+        const key = `${ai}_${fi}_${qi}`;
+        const qNum = countBefore(ai, fi, qi, survey) + qi + 1;
+        const labels = ['لا أوافق بشدة','لا أوافق','محايد','أوافق','أوافق بشدة'];
+        html += `<div class="question-row" id="qrow-${key}">
+          <div class="q-text"><span class="q-num">${qNum}</span>${q}</div>
+          ${[1,2,3,4,5].map(v => `
+          <div class="likert-cell" onclick="setAnswer('${key}',${v})" title="${labels[v-1]}">
+            <div class="likert-radio"></div>
+            <span class="mobile-label">${labels[v-1]}</span>
+          </div>`).join('')}
+        </div>`;
+      });
+    });
+
+    html += `</div>`;
+  });
+
+  // Open questions
+  const openQs = [...survey.openQuestions, ...(customOpenQuestions[currentType] || [])];
+  html += `<div class="section-header">💬 أسئلة مفتوحة (اختيارية)</div>
+  <div class="section-body">`;
+  openQs.forEach((q, i) => {
+    html += `<div class="open-question">
+      <div class="open-q-label"><span class="q-num">${i+1}</span>${q}</div>
+      <textarea class="open-input" id="open-${i}" placeholder="أجب هنا..." rows="2"></textarea>
+    </div>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('survey-form-container').innerHTML = html;
+}
+
+function countBefore(ai, fi, qi, survey) {
+  let count = 0;
+  survey.axes.forEach((ax, a) => {
+    ax.fields.forEach((field, f) => {
+      if(a < ai || (a === ai && f < fi)) count += field.questions.length;
+    });
+  });
+  return count;
+}
+
+function likertLabel(v) {
+  return ['','لا أوافق بشدة','لا أوافق','محايد','أوافق','أوافق بشدة'][v];
+}
+
+function setAnswer(key, val) {
+  answers[key] = val;
+  const row = document.getElementById('qrow-' + key);
+  if(row) {
+    // إزالة كل sel- السابقة
+    row.className = row.className.replace(/\bsel-\d\b/g, '').trim();
+    row.classList.add('answered');
+    row.classList.add('sel-' + val);
+  }
+  updateProgress();
+}
+
+function getTotalLikertCount() {
+  return getAllQuestions().length;
+}
+
+function updateProgress() {
+  const total = getTotalLikertCount();
+  const answered = Object.keys(answers).length;
+  const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  const axAnswered = survey.axes.map((ax,ai) => ax.fields.every((f,fi) => f.questions.every((_,qi) => answers[`${ai}_${fi}_${qi}`]))).filter(Boolean).length;
+  document.getElementById('prog-text').textContent = `${answered} / ${total} إجابة • ${axAnswered}/${survey.axes.length} محاور مكتملة`;
+}
+
+// ===== SUBMIT =====
+function submitSurvey() {
+  const total = getTotalLikertCount();
+  const answered = Object.keys(answers).length;
+  const unanswered = total - answered;
+
+  if(unanswered > 0) {
+    document.getElementById('validation-msg').textContent = `⚠️ لم تُجب على ${unanswered} سؤال بعد. يُنصح بإكمال جميع الأسئلة.`;
+    if(!confirm(`لم تُجب على ${unanswered} سؤالًا. هل تريد الإرسال الآن؟`)) return;
+  }
+
+  // Collect data
+  const survey = SURVEYS[currentType];
+  const openQs = [...survey.openQuestions, ...(customOpenQuestions[currentType] || [])];
+  const openAnswers = openQs.map((q, i) => ({
+    question: q,
+    answer: document.getElementById('open-' + i)?.value || ''
+  }));
+
+  const allQ = getAllQuestions();
+  const scores = allQ.map(q => answers[q.key] || null);
+  const validScores = scores.filter(s => s !== null);
+  const avg = validScores.length > 0 ? validScores.reduce((a,b) => a+b,0) / validScores.length : 0;
+
+  const now = new Date();
+  const refNum = `PP-${now.getFullYear()}-${String(allResponses.length + 1).padStart(4,'0')}`;
+
+  const response = {
+    id: refNum,
+    type: currentType,
+    typeLabel: survey.label,
+    dept: document.getElementById('gi-dept')?.value || '',
+    region: document.getElementById('gi-region')?.value || '',
+    jobTitle: document.getElementById('gi-title')?.value || '',
+    experience: document.getElementById('gi-exp')?.value || '',
+    supervisory: '',
+    answers: answers,
+    openAnswers: openAnswers,
+    avgScore: Math.round(avg * 100) / 100,
+    submittedAt: now.toISOString(),
+    questions: allQ
+  };
+
+  allResponses.push(response);
+  saveToStorage();
+
+  // ===== إرسال البيانات لـ Google Sheets =====
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyqFHtAlDdXLWEzaSI41rJQ0M4i8ILFbccCSRyCk5NitE142104e31PTCjrQ63E8IQF/exec';
+
+  const sheetsData = {
+    id: response.id,
+    dept: response.dept,
+    experience: response.experience,
+    region: response.region,
+    jobTitle: response.jobTitle,
+    avgScore: response.avgScore,
+    submittedAt: new Date(response.submittedAt).toLocaleString('ar-SA'),
+    scores: allQ.map(q => response.answers[q.key] || ''),
+    openAnswers: response.openAnswers.map(o => o.answer)
+  };
+
+  // إرسال عبر Image request لتجاوز CORS بشكل كامل
+  const params = new URLSearchParams({ data: JSON.stringify(sheetsData) });
+  const img = new Image();
+  img.src = SHEETS_URL + '?' + params.toString();
+
+  document.getElementById('ref-num').textContent = refNum;
+  showPage('success');
+}
+
+// ===== ADMIN =====
+function showAdminTab(t) {
+  ['overview','responses','analysis','manage'].forEach(tab => {
+    document.getElementById('admin-tab-' + tab).style.display = 'none';
+    const btn = document.getElementById('at-' + tab);
+    if(btn) { btn.className = 'btn btn-outline btn-sm'; }
+  });
+  document.getElementById('admin-tab-' + t).style.display = 'block';
+  const activeBtn = document.getElementById('at-' + t);
+  if(activeBtn) activeBtn.className = 'btn btn-primary btn-sm';
+
+  if(t === 'overview') renderOverview();
+  if(t === 'responses') renderResponses();
+  if(t === 'analysis') renderAnalysis();
+  if(t === 'manage') renderManage();
+}
+
+function refreshAdmin() {
+  showAdminTab('overview');
+}
+
+function destroyChart(id) {
+  if(charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function renderOverview() {
+  const total = allResponses.length;
+  const avg = total > 0 ? (allResponses.reduce((s,r) => s + r.avgScore, 0) / total).toFixed(2) : '—';
+  const today = allResponses.filter(r => new Date(r.submittedAt).toDateString() === new Date().toDateString()).length;
+  const highScore = allResponses.filter(r => r.avgScore >= 4).length;
+  const lowScore  = allResponses.filter(r => r.avgScore < 3).length;
+  const uniqueRegions = new Set(allResponses.map(r => r.dept).filter(Boolean)).size;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card"><div class="kpi-icon">⚖️</div><div class="kpi-label">إجمالي المشاركين</div><div class="kpi-value">${total}</div></div>
+    <div class="kpi-card"><div class="kpi-icon">⭐</div><div class="kpi-label">متوسط التقييم العام</div><div class="kpi-value">${avg}</div><div class="kpi-sub">من 5</div></div>
+    <div class="kpi-card"><div class="kpi-icon">📅</div><div class="kpi-label">ردود اليوم</div><div class="kpi-value">${today}</div></div>
+    <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-label">تقييم مرتفع (4+)</div><div class="kpi-value">${highScore}</div></div>
+    <div class="kpi-card"><div class="kpi-icon">⚠️</div><div class="kpi-label">تقييم منخفض (أقل من 3)</div><div class="kpi-value">${lowScore}</div></div>
+    <div class="kpi-card"><div class="kpi-icon">🗺️</div><div class="kpi-label">مناطق / فروع</div><div class="kpi-value">${uniqueRegions}</div></div>
+  `;
+
+  // Chart: توزيع حسب مجال القضايا
+  destroyChart('chart-type');
+  const caseFields = ['جزائي','تجاري','أحوال شخصية','أخرى'];
+  const caseCounts = caseFields.map(f => allResponses.filter(r => r.jobTitle === f).length);
+  const ctxType = document.getElementById('chart-type').getContext('2d');
+  charts['chart-type'] = new Chart(ctxType, {
+    type: 'doughnut',
+    data: {
+      labels: caseFields,
+      datasets: [{ data: caseCounts, backgroundColor: ['#02807A','#309C99','#AA926D','#9FD297'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+  });
+
+  // Chart: avg per axis
+  destroyChart('chart-axes');
+  const axisLabels = ['تصميم التجربة','التقنية والبيانات','الكوادر والثقافة','صوت المستفيد','تحسين العمليات والحوكمة'];
+  const axisAvgs = axisLabels.map((_, ai) => {
+    if(!allResponses.length) return 0;
+    let scores = [];
+    allResponses.forEach(r => {
+      r.questions.forEach(q => {
+        const parts = q.key.split('_');
+        if(parseInt(parts[0]) === ai && r.answers[q.key]) scores.push(r.answers[q.key]);
+      });
+    });
+    return scores.length ? (scores.reduce((a,b) => a+b,0) / scores.length).toFixed(2) : 0;
+  });
+  const ctxAxes = document.getElementById('chart-axes').getContext('2d');
+  charts['chart-axes'] = new Chart(ctxAxes, {
+    type: 'bar',
+    data: {
+      labels: axisLabels,
+      datasets: [{ label: 'متوسط التقييم', data: axisAvgs, backgroundColor: ['#02807A','#309C99','#AA926D'], borderRadius: 4 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 5 } }, indexAxis: 'x' }
+  });
+
+  // Likert distribution
+  destroyChart('chart-likert');
+  const counts = [0,0,0,0,0];
+  allResponses.forEach(r => {
+    Object.values(r.answers).forEach(v => { if(v >= 1 && v <= 5) counts[v-1]++; });
+  });
+  const ctxL = document.getElementById('chart-likert').getContext('2d');
+  charts['chart-likert'] = new Chart(ctxL, {
+    type: 'bar',
+    data: {
+      labels: ['1 - لا أوافق بشدة','2 - لا أوافق','3 - محايد','4 - أوافق','5 - أوافق بشدة'],
+      datasets: [{ data: counts, backgroundColor: ['#dc3545','#fd7e14','#ffc107','#309C99','#02807A'], borderRadius: 4 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Timeline
+  destroyChart('chart-timeline');
+  const byDate = {};
+  allResponses.forEach(r => {
+    const d = new Date(r.submittedAt).toLocaleDateString('ar-SA');
+    byDate[d] = (byDate[d] || 0) + 1;
+  });
+  const dates = Object.keys(byDate).slice(-14);
+  const ctxT = document.getElementById('chart-timeline').getContext('2d');
+  charts['chart-timeline'] = new Chart(ctxT, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{ label: 'عدد الردود', data: dates.map(d => byDate[d]), borderColor: '#02807A', backgroundColor: 'rgba(2,128,122,0.1)', fill: true, tension: 0.3 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+}
+
+// RESPONSES TABLE
+function renderResponses() {
+  filteredResponses = [...allResponses];
+  filterResponses();
+}
+
+function filterResponses() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const fType = document.getElementById('filter-type').value;
+  const fScore = document.getElementById('filter-score').value;
+
+  filteredResponses = allResponses.filter(r => {
+    if(search && !r.id.toLowerCase().includes(search) && !(r.dept||'').toLowerCase().includes(search)) return false;
+    if(fType && r.jobTitle !== fType) return false;
+    if(fScore === 'high' && r.avgScore < 4) return false;
+    if(fScore === 'mid' && (r.avgScore < 3 || r.avgScore >= 4)) return false;
+    if(fScore === 'low' && r.avgScore >= 3) return false;
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-score').value = '';
+  filterResponses();
+}
+
+function renderTable() {
+  const start = (currentPage - 1) * PER_PAGE;
+  const end = start + PER_PAGE;
+  const page = filteredResponses.slice(start, end);
+  const tbody = document.getElementById('responses-tbody');
+
+  if(!filteredResponses.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-secondary); padding:32px;">لا توجد ردود</td></tr>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = page.map(r => {
+    const sc = r.avgScore;
+    const scoreClass = sc >= 4 ? 'score-high' : sc >= 3 ? 'score-mid' : 'score-low';
+    const date = new Date(r.submittedAt).toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric' });
+    return `<tr>
+      <td style="font-weight:600; direction:ltr;">${r.id}</td>
+      <td><span class="type-badge type-member">${r.jobTitle || '—'}</span></td>
+      <td>${r.dept || '—'}</td>
+      <td><span class="score-pill ${scoreClass}">${sc.toFixed(2)} / 5</span></td>
+      <td>${date}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="showDetail('${r.id}')">عرض</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteResponse('${r.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(filteredResponses.length / PER_PAGE);
+  if(totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  let html = '';
+  for(let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+
+function deleteResponse(id) {
+  if(!confirm(`هل أنت متأكد من حذف الاستجابة ${id}؟`)) return;
+  
+  // حذف من localStorage
+  allResponses = allResponses.filter(r => r.id !== id);
+  saveToStorage();
+  filterResponses();
+  
+  // حذف من Google Sheets
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyqFHtAlDdXLWEzaSI41rJQ0M4i8ILFbccCSRyCk5NitE142104e31PTCjrQ63E8IQF/exec';
+  const img = new Image();
+  img.src = SHEETS_URL + '?action=delete&id=' + encodeURIComponent(id);
+}
+
+function showDetail(id) {
+  const r = allResponses.find(x => x.id === id);
+  if(!r) return;
+  document.getElementById('modal-title').textContent = `تفاصيل الاستجابة – ${id}`;
+
+  let html = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; font-size:13px;">
+    <div><strong>الفئة:</strong> ${r.typeLabel}</div>
+    <div><strong>الإدارة:</strong> ${r.dept || '—'}</div>
+    <div><strong>المنطقة:</strong> ${r.region || '—'}</div>
+    <div><strong>المسمى:</strong> ${r.jobTitle || '—'}</div>
+    <div><strong>الخبرة:</strong> ${r.experience || '—'}</div>
+    <div><strong>إشرافي:</strong> ${r.supervisory === 'yes' ? 'نعم' : r.supervisory === 'no' ? 'لا' : '—'}</div>
+    <div><strong>المتوسط العام:</strong> <span style="color:var(--teal-dark); font-weight:700;">${r.avgScore.toFixed(2)} / 5</span></div>
+    <div><strong>تاريخ الإرسال:</strong> ${new Date(r.submittedAt).toLocaleString('ar-SA')}</div>
+  </div>`;
+
+  // Group by axis
+  const survey = SURVEYS[r.type];
+  survey.axes.forEach((ax, ai) => {
+    html += `<div class="modal-section-title">${ax.title}</div>`;
+    ax.fields.forEach((field, fi) => {
+      html += `<div style="font-size:12px; color:var(--text-secondary); padding:6px 0 2px; font-weight:600;">${field.sub}</div>`;
+      field.questions.forEach((q, qi) => {
+        const key = `${ai}_${fi}_${qi}`;
+        const val = r.answers[key];
+        const colors = ['','#dc3545','#fd7e14','#ffc107','#309C99','#02807A'];
+        html += `<div class="modal-q-row">
+          <div>${q}</div>
+          <div style="font-weight:700; color:${val ? colors[val] : '#ccc'}; min-width:30px; text-align:center;">${val || '—'}</div>
+        </div>`;
+      });
+    });
+  });
+
+  if(r.openAnswers && r.openAnswers.some(a => a.answer)) {
+    html += `<div class="modal-section-title">الأسئلة المفتوحة</div>`;
+    r.openAnswers.forEach(oa => {
+      if(oa.answer) html += `<div style="padding:10px 0; border-bottom:0.5px solid #f0f0f0; font-size:13px;"><div style="font-weight:600; color:var(--text-secondary); margin-bottom:6px;">${oa.question}</div><div style="line-height:1.7;">${oa.answer}</div></div>`;
+    });
+  }
+
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+// ANALYSIS TAB
+function renderAnalysis() {
+  if(!allResponses.length) {
+    document.getElementById('chart-per-question').parentElement.innerHTML = '<div class="alert alert-warning">لا توجد بيانات كافية للتحليل.</div>';
+    return;
+  }
+
+  // Per-question averages (use member survey as base structure)
+  const baseSurvey = SURVEYS['lawyers'];
+  const allQ = [];
+  baseSurvey.axes.forEach((ax, ai) => {
+    ax.fields.forEach((field, fi) => {
+      field.questions.forEach((q, qi) => {
+        const key = `${ai}_${fi}_${qi}`;
+        let vals = [];
+        allResponses.forEach(r => { if(r.answers[key]) vals.push(r.answers[key]); });
+        allQ.push({ text: q.substring(0, 45) + '…', avg: vals.length ? vals.reduce((a,b) => a+b,0) / vals.length : 0 });
+      });
+    });
+  });
+
+  destroyChart('chart-per-question');
+  const ctx = document.getElementById('chart-per-question').getContext('2d');
+  charts['chart-per-question'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allQ.map((q, i) => `س${i+1}`),
+      datasets: [{ label: 'المتوسط', data: allQ.map(q => q.avg.toFixed(2)), backgroundColor: allQ.map(q => q.avg >= 4 ? '#02807A' : q.avg >= 3 ? '#309C99' : '#fd7e14'), borderRadius: 3 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 5 } } }
+  });
+
+  // Axis table
+  const axisColors = ['score-high','score-mid','score-low'];
+  const axisRows = baseSurvey.axes.map((ax, ai) => {
+    let allSubs = [];
+    ax.fields.forEach((field, fi) => {
+      let scores = [];
+      field.questions.forEach((_, qi) => {
+        const key = `${ai}_${fi}_${qi}`;
+        allResponses.forEach(r => { if(r.answers[key]) scores.push(r.answers[key]); });
+      });
+      const avg = scores.length ? scores.reduce((a,b) => a+b,0)/scores.length : 0;
+      allSubs.push({ sub: field.sub, avg });
+    });
+    return { axis: ax.title, subs: allSubs };
+  });
+
+  document.getElementById('axis-tbody').innerHTML = axisRows.flatMap(ax =>
+    ax.subs.map((sub, i) => {
+      const sc = sub.avg;
+      const cls = sc >= 4 ? 'score-high' : sc >= 3 ? 'score-mid' : 'score-low';
+      const lvl = sc >= 4 ? 'مرتفع' : sc >= 3 ? 'متوسط' : 'منخفض';
+      return `<tr>
+        ${i === 0 ? `<td rowspan="${ax.subs.length}" style="font-weight:600; background:var(--teal-light); color:var(--teal-dark); text-align:center;">${ax.axis}</td>` : ''}
+        <td>${sub.sub}</td>
+        <td><strong>${sc.toFixed(2)}</strong></td>
+        <td><span class="score-pill ${cls}">${lvl}</span></td>
+      </tr>`;
+    })
+  ).join('');
+
+  // Open answers
+  let openHtml = '';
+  allResponses.forEach(r => {
+    if(r.openAnswers) r.openAnswers.forEach((oa, i) => {
+      if(oa.answer) openHtml += `<div class="analysis-card"><div class="q-label">📌 ${oa.question}</div><div style="font-size:14px; line-height:1.7; color:var(--text-secondary);">${oa.answer}</div><div style="font-size:11px; color:#bbb; margin-top:8px;">${r.id} – ${new Date(r.submittedAt).toLocaleDateString('ar-SA')}</div></div>`;
+    });
+  });
+  document.getElementById('open-answers-container').innerHTML = openHtml || '<div class="alert alert-info">لا توجد إجابات مفتوحة بعد.</div>';
+}
+
+// MANAGE TAB
+function renderManage() {
+  document.getElementById('survey-active').checked = surveyActive;
+  document.getElementById('survey-status-text').textContent = surveyActive ? 'الاستبيان مفعّل' : 'الاستبيان متوقف';
+
+  // Build editable list of questions
+  const survey = SURVEYS['member'];
+  let html = '';
+  survey.axes.forEach((ax, ai) => {
+    ax.fields.forEach((field, fi) => {
+      field.questions.forEach((q, qi) => {
+        html += `<div class="q-edit-row">
+          <textarea id="qe-${ai}-${fi}-${qi}" onchange="saveQuestionEdit(${ai},${fi},${qi},this.value)">${q}</textarea>
+        </div>`;
+      });
+    });
+  });
+  document.getElementById('q-edit-container').innerHTML = html;
+}
+
+function toggleSurvey() {
+  surveyActive = document.getElementById('survey-active').checked;
+  document.getElementById('survey-status-text').textContent = surveyActive ? 'الاستبيان مفعّل' : 'الاستبيان متوقف';
+  saveToStorage();
+}
+
+function addCustomQuestion() {
+  const text = document.getElementById('new-q-text').value.trim();
+  if(!text) return;
+  if(!customOpenQuestions.member) customOpenQuestions.member = [];
+  if(!customOpenQuestions.admin) customOpenQuestions.admin = [];
+  customOpenQuestions.member.push(text);
+  customOpenQuestions.admin.push(text);
+  saveToStorage();
+  document.getElementById('new-q-text').value = '';
+  alert('تمت إضافة السؤال بنجاح.');
+}
+
+function saveQuestionEdit(ai, fi, qi, val) {
+  SURVEYS.member.axes[ai].fields[fi].questions[qi] = val;
+  SURVEYS.admin.axes[ai].fields[fi].questions[qi] = val;
+}
+
+// ===== EXPORT =====
+function exportExcel() {
+  if(!allResponses.length) { alert('لا توجد بيانات للتصدير.'); return; }
+  const wb = XLSX.utils.book_new();
+
+  // Summary sheet
+  const summaryData = allResponses.map(r => ({
+    'الرقم المرجعي': r.id,
+    'الفئة': r.typeLabel,
+    'الإدارة': r.dept,
+    'المنطقة': r.region,
+    'المسمى': r.jobTitle,
+    'سنوات الخبرة': r.experience,
+    'إشرافي': r.supervisory === 'yes' ? 'نعم' : 'لا',
+    'المتوسط العام': r.avgScore,
+    'تاريخ الإرسال': new Date(r.submittedAt).toLocaleDateString('ar-SA')
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), 'ملخص الردود');
+
+  // Detailed scores
+  const detailData = allResponses.map(r => {
+    const row = { 'الرقم المرجعي': r.id, 'الفئة': r.typeLabel };
+    (r.questions || []).forEach((q, i) => {
+      row[`س${i+1}`] = r.answers[q.key] || '';
+    });
+    row['المتوسط'] = r.avgScore;
+    return row;
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detailData), 'التفاصيل');
+
+  XLSX.writeFile(wb, `survey_pp_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function exportCSV() {
+  if(!allResponses.length) { alert('لا توجد بيانات للتصدير.'); return; }
+  const headers = ['الرقم المرجعي','المنطقة / الفرع','سنوات الخبرة','عدد القضايا شهرياً','مجال القضايا','المتوسط','التاريخ'];
+  const rows = allResponses.map(r => [
+    r.id, r.dept, r.experience, r.region, r.jobTitle, r.avgScore,
+    new Date(r.submittedAt).toLocaleDateString('ar-SA')
+  ]);
+  const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `survey_pp_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function exportPDF() {
+  if(!allResponses.length) { alert('لا توجد بيانات للتصدير.'); return; }
+  const total = allResponses.length;
+  const avg = (allResponses.reduce((s,r) => s+r.avgScore, 0) / total).toFixed(2);
+  const highPDF = allResponses.filter(r => r.avgScore >= 4).length;
+  const lowPDF = allResponses.filter(r => r.avgScore < 3).length;
+  const date = new Date().toLocaleDateString('ar-SA', { year:'numeric', month:'long', day:'numeric' });
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+  <title>تقرير الاستبيان – النيابة العامة</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; padding: 40px; direction: rtl; }
+    .header { background: #02807A; color: white; padding: 24px; border-radius: 8px; margin-bottom: 28px; }
+    .header h1 { font-size: 22px; margin-bottom: 6px; }
+    .header p { font-size: 13px; opacity: 0.85; }
+    .kpi-row { display: flex; gap: 16px; margin-bottom: 24px; }
+    .kpi { background: #f0f9f8; border: 1px solid #309C99; border-radius: 8px; padding: 16px; flex: 1; text-align: center; }
+    .kpi .val { font-size: 28px; font-weight: 700; color: #02807A; }
+    .kpi .lbl { font-size: 12px; color: #555; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: #02807A; color: white; padding: 10px; text-align: right; }
+    td { padding: 9px 10px; border-bottom: 0.5px solid #eee; }
+    tr:nth-child(even) { background: #fafafa; }
+    h2 { color: #02807A; border-bottom: 2px solid #ECE6DE; padding-bottom: 8px; margin: 24px 0 14px; }
+    .footer { text-align: center; color: #999; font-size: 11px; margin-top: 32px; }
+  </style></head><body>
+  <div class="header">
+    <h1>تقرير استبيان تجربة المستفيد النيابي – المحامون</h1>
+    <p>تاريخ التقرير: ${date} &nbsp;|&nbsp; المملكة العربية السعودية</p>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">${total}</div><div class="lbl">إجمالي المشاركين</div></div>
+    <div class="kpi"><div class="val">${avg}</div><div class="lbl">متوسط التقييم / 5</div></div>
+    <div class="kpi"><div class="val">${highPDF}</div><div class="lbl">تقييم مرتفع (4+)</div></div>
+    <div class="kpi"><div class="val">${lowPDF}</div><div class="lbl">تقييم منخفض (أقل من 3)</div></div>
+  </div>
+  <h2>تفاصيل الردود</h2>
+  <table><thead><tr><th>الرقم المرجعي</th><th>مجال القضايا</th><th>المنطقة / الفرع</th><th>المتوسط</th><th>التاريخ</th></tr></thead>
+  <tbody>${allResponses.map(r => `<tr>
+    <td>${r.id}</td><td>${r.jobTitle||'—'}</td><td>${r.dept||'—'}</td>
+    <td>${r.avgScore.toFixed(2)}</td>
+    <td>${new Date(r.submittedAt).toLocaleDateString('ar-SA')}</td>
+  </tr>`).join('')}</tbody></table>
+  <div class="footer">النيابة العامة – www.pp.gov.sa &nbsp;|&nbsp; وثيقة سرية للاستخدام الداخلي فقط</div>
+  </body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+function clearAllData() {
+  if(!confirm('⚠️ هل أنت متأكد من مسح جميع بيانات الاستبيان؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+  if(!confirm('تأكيد نهائي: سيتم حذف جميع الردود المحفوظة.')) return;
+  allResponses = [];
+  saveToStorage();
+  renderResponses();
+  alert('تم مسح البيانات بنجاح.');
+}
+
+// ===== INIT =====
+loadFromStorage();
+
+// Update q-count
+const totalQMember = SURVEYS.member.axes.reduce((s,ax) => s + ax.fields.reduce((s2,f) => s2 + f.questions.length, 0), 0);
+const totalQLawyers = SURVEYS.lawyers.axes.reduce((s,ax) => s + ax.fields.reduce((s2,f) => s2 + f.questions.length, 0), 0);
+document.getElementById('q-count-display').textContent = totalQLawyers;
+
+// Close modal on overlay click
+document.getElementById('detail-modal').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
